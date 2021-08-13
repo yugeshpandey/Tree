@@ -18,12 +18,24 @@ var hide = false,
 
 var bgmSound
 
+var grammar,
+	lines, 
+	json
+
+var line1,
+	line2, 
+	line3
+	
+let buttonSeed
+
+var backgroundColor
+
 function preload() 
 {
 	bgmSound = loadSound('assets/sounds/bgm.mp3');
+	json = loadJSON('assets/poem_inputs.json');
+	
 }
-
-
 
 function setup()
 {	
@@ -35,10 +47,19 @@ function setup()
 	mutating = true;
 	mutate();
 
+	lines = ["click", "to", "generate", "a", "random poem"];
+
 	if(!bgmSound.isLooping()){
 		bgmSound.loop();
 	}
-		
+
+	grammar = RiTa.grammar(json);
+	
+	div_inputs = createDiv('');
+	div_inputs.style('visibility', 'initial');
+	
+	writePoem(lines[0], lines[1], lines[2], lines[3], lines[4]);
+
 }
 
 function setInputs()
@@ -89,20 +110,65 @@ function windowResized()
 
 function draw()
 {
-	var startTime = millis();
-
+	
 	stroke('rgb(153, 102, 51)');
 
-	background('rgb(242, 249, 252)');
+	darkMode();
+
 	translate(width / 2, height);
 	scale(1, -1);
-	
+		
 	translate(0, 20);
 	
 	branch(1, randSeed);
-	
+
 	noLoop();
+		
+}
+
+function mouseReleased() {
+	let result = grammar.expand();
+  	let haiku = result.split("%");
+	hidePoem();
+
+	writePoem(haiku[0], haiku[1], haiku[2], haiku[3], haiku[4]);
+
 	
+}
+
+function darkMode() {
+	background('rgb(0, 0, 0)');
+}
+
+function lightMode() {
+	background('rgb(242, 249, 252)');
+}
+
+function writePoem(line, pine, nine, dine, sine) {
+	
+	line1 = createP(line);
+	line1.style('font-size', '20px');
+	line1.position(width/3, 10);
+	line2 = createP(pine);
+	line2.style('font-size', '20px');
+	line2.position(width/3, 30);
+	line3 = createP(nine);
+	line3.style('font-size', '20px');
+	line3.position(width/3 , 50);
+	line4 = createP(dine);
+	line4.style('font-size', '20px');
+	line4.position(width/3 , 70);
+	line5 = createP(sine);
+	line5.style('font-size', '20px');
+	line5.position(width/3 , 90);
+}
+
+function hidePoem(){
+	line1.style('visibility', 'hidden');
+	line2.style('visibility', 'hidden');
+	line3.style('visibility', 'hidden');
+	line4.style('visibility', 'hidden');
+	line5.style('visibility', 'hidden');
 }
 
 function branch(level, seed)
