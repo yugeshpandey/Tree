@@ -32,6 +32,10 @@ var isDarkMode = false
 
 var backgroundColor
 
+let flies = [];
+let numFireflies = 10;
+
+
 function preload() 
 {
 	bgmSound = loadSound('assets/sounds/bgm.mp3');
@@ -42,7 +46,7 @@ function preload()
 function setup()
 {	
 	createCanvas(window.innerWidth, window.innerHeight);
-		
+	
 	setInputs();
 	startGrow();
 	mutateTime = millis();
@@ -81,6 +85,11 @@ function setup()
 		darkModeButton.style('visibility', 'initial');
 		lightModeButton.style('visibility', 'hidden');
 	})
+
+
+	for (let i = 0; i < numFireflies; i++){
+		flies.push(new firefly());
+	}
 }
 
 function setInputs()
@@ -131,14 +140,18 @@ function windowResized()
 
 function draw()
 {
-	
-	stroke('rgb(153, 102, 51)');
-	
+		
 	if(isDarkMode == true ){
 		darkMode();
+		for(let i =0; i < flies.length; i++){
+			flies[i].update();
+		}
 	}else{
 		lightMode();
 	}
+	
+
+	stroke('rgb(153, 102, 51)');
 
 	translate(width / 2, height);
 	scale(1, -1);
@@ -161,7 +174,7 @@ function mouseReleased() {
 }
 
 function darkMode() {
-	background('rgb(0, 0, 0)');
+	background('rgb(0, 0, 20)');
 }
 
 function lightMode() {
@@ -256,14 +269,14 @@ function branch(level, seed)
 	{
 		var p = Math.min(1, Math.max(0, prog - level));
 		
-		var flowerSize = (size / 100) * p * (1 / 6) * (len / level);
+		var leafSize = (size / 100) * p * (1 / 6) * (len / level);
 
 		strokeWeight(3);
 		stroke('rgb(204, 204, 0)');
 		rotate(-PI);
 		for ( var i=0 ; i<=8 ; i++ )
 		{
-			line(0, 0, 0, flowerSize * (1 + 0.5 * rand2()));
+			line(0, 0, 0, leafSize * (1 + 0.5 * rand2()));
 			rotate(2 * PI/12);
 		}
 	}	
@@ -294,7 +307,6 @@ function grow()
 	setTimeout(grow, Math.max(1, 20 - diff));
 }
 
-
 function rand()
 {
 	return random(1000) / 1000;
@@ -308,4 +320,74 @@ function rand2()
 function rrand()
 {
 	return rand2() + randBias;
+}
+
+function firefly() {
+	this.x = 0;
+	this.y = 0;
+
+	this.xoff = random(100);
+	this.yoff = random(100);
+
+	this.wave = random(5);
+	this.rate = random(0.05, 0.01);
+	
+	this.roff = random(12);
+	this.toff = random(25);
+
+	this.rise = 0; 
+
+	this.update = function() {
+		this.xoff += 0.0025;
+		this.yoff += 0.0025;
+
+		let w = width * 0.25;
+		let h = height * 0.25;
+
+		this.rise += 0.001;
+		
+		this.x = map( noise(this.xoff), 0, 1, -w, width+w );
+		this.y = map( noise(this.yoff), 0, 1, -h, height+h);
+
+		this.wave += this.rate;
+
+		let flash = abs(sin(this.wave) * 255);
+
+		let falpha = map(flash, 0, 255, 50, 155);
+
+		stroke(flash * 0.5, flash * 0.5 - 30, 0, falpha);
+
+		push();
+		translate(this.x, this.y);
+		this.toff += 0.01;
+		let twing = map( noise(this.toff), 0, 1, -PI*0.5, PI*0.5 );
+		rotate(twing);
+
+		this.roff += 1;
+		let r = map(sin(this.roff), -1, 1, -PI*0.25, PI*0.25);
+		strokeWeight(2);
+		let winglen = 12;
+
+		push();
+		stroke(255, 200, 0, 125);
+		rotate(r);
+		line(0, 0 , -winglen, 0);
+		pop();
+
+		push();
+		stroke(255, 200, 0, 125);
+		rotate(-r);
+		line(0, 0 , -winglen, 0);
+		pop();
+
+		let size = map(flash, 0, 255, 10, 25);
+
+		strokeWeight(size);
+		point(0, 0);
+		strokeWeight(size * 0.25);
+		stroke(255, 255, 0, 255);
+		point(0, 0);
+		 
+		pop();
+	}
 }
