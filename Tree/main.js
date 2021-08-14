@@ -35,6 +35,8 @@ var backgroundColor
 let flies = [];
 let numFireflies = 10;
 
+let amt, startColor, newColor;
+
 
 function preload() 
 {
@@ -47,6 +49,12 @@ function setup()
 {	
 	createCanvas(window.innerWidth, window.innerHeight);
 	
+	startColor = color(255, 255, 255);
+	newColor = color(0, 0, 0);
+	amt = 0;
+
+	background(startColor);
+
 	setInputs();
 	startGrow();
 	mutateTime = millis();
@@ -141,13 +149,32 @@ function windowResized()
 function draw()
 {
 		
-	if(isDarkMode == true ){
-		darkMode();
+	// if(isDarkMode == true ){
+	// 	darkMode();
+	// 	for(let i =0; i < flies.length; i++){
+	// 		flies[i].update();
+	// 	}
+	// }else{
+	// 	lightMode();
+	// }
+
+	lightMode();
+
+	if(isDarkMode == true) {
+		
+		background(lerpColor(startColor, newColor, amt));
+		amt+= 0.009;
+		if(amt >= 1) {
+			amt = 0.0;
+			startColor = newColor;
+			newColor = color(0, 0, 0);
+		}  
+			
 		for(let i =0; i < flies.length; i++){
 			flies[i].update();
+			
 		}
-	}else{
-		lightMode();
+
 	}
 	
 
@@ -178,7 +205,9 @@ function darkMode() {
 }
 
 function lightMode() {
-	this.background('rgb(242, 249, 252)');
+			
+	this.background('rgb(241, 249, 252)');
+	
 }
 
 function writePoem(line, pine, nine, dine, sine) {
@@ -377,7 +406,7 @@ function firefly() {
 		push();
 		stroke(255, 200, 0, 125);
 		rotate(-r);
-		line(0, 0 , -winglen, 0);
+		line(0, 0 , winglen, 0);
 		pop();
 
 		let size = map(flash, 0, 255, 10, 25);
