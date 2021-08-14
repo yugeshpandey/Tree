@@ -27,6 +27,8 @@ var line1,
 	line3
 	
 let buttonSeed
+var darkModeButton
+var isDarkMode = false
 
 var backgroundColor
 
@@ -59,7 +61,26 @@ function setup()
 	div_inputs.style('visibility', 'initial');
 	
 	writePoem(lines[0], lines[1], lines[2], lines[3], lines[4]);
+	
+	darkModeButton = createButton('Dark Mode');
+	darkModeButton.position(10 ,10);
+	darkModeButton.style('border', 'none');
+	darkModeButton.mousePressed(function() {
+		isDarkMode = true;
+		darkModeButton.style('visibility', 'hidden');
+		lightModeButton.style('visibility', 'initial');
+	});
 
+	lightModeButton = createButton('Light Mode');
+	lightModeButton.position(10 ,10);
+	lightModeButton.style('background-color', 'grey');
+	lightModeButton.style('color', 'rgb(195, 240, 163)');
+	lightModeButton.style('visibility', 'hidden');
+	lightModeButton.mousePressed(function() {
+		isDarkMode = false;
+		darkModeButton.style('visibility', 'initial');
+		lightModeButton.style('visibility', 'hidden');
+	})
 }
 
 function setInputs()
@@ -112,8 +133,12 @@ function draw()
 {
 	
 	stroke('rgb(153, 102, 51)');
-
-	darkMode();
+	
+	if(isDarkMode == true ){
+		darkMode();
+	}else{
+		lightMode();
+	}
 
 	translate(width / 2, height);
 	scale(1, -1);
@@ -132,7 +157,6 @@ function mouseReleased() {
 	hidePoem();
 
 	writePoem(haiku[0], haiku[1], haiku[2], haiku[3], haiku[4]);
-
 	
 }
 
@@ -141,26 +165,36 @@ function darkMode() {
 }
 
 function lightMode() {
-	background('rgb(242, 249, 252)');
+	this.background('rgb(242, 249, 252)');
 }
 
 function writePoem(line, pine, nine, dine, sine) {
-	
+
 	line1 = createP(line);
+	
+	line1.position(width/2.5, 10);
 	line1.style('font-size', '20px');
-	line1.position(width/3, 10);
 	line2 = createP(pine);
 	line2.style('font-size', '20px');
-	line2.position(width/3, 30);
+	line2.position(width/2.5, 30);
 	line3 = createP(nine);
 	line3.style('font-size', '20px');
-	line3.position(width/3 , 50);
+	line3.position(width/2.5, 50);
 	line4 = createP(dine);
 	line4.style('font-size', '20px');
-	line4.position(width/3 , 70);
+	line4.position(width/2.5, 70);
 	line5 = createP(sine);
 	line5.style('font-size', '20px');
-	line5.position(width/3 , 90);
+	line5.position(width/2.5, 90);
+
+	if(isDarkMode == true) {
+		line1.style('color', 'rgb(238, 240, 163)');
+		line2.style('color', 'rgb(195, 240, 163)');
+		line3.style('color', 'rgb(242, 215, 165)');
+		line4.style('color', 'rgb(250, 207, 229)');
+		line5.style('color', 'rgb(207, 250, 233)');
+	}
+	
 }
 
 function hidePoem(){
