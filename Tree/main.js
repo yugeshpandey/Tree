@@ -29,6 +29,8 @@ var line1,
 let buttonSeed
 var darkModeButton
 var isDarkMode = false
+var isLightMode 
+var darkModeActivated = false
 
 var backgroundColor
 
@@ -36,6 +38,7 @@ let flies = [];
 let numFireflies = 10;
 
 let amt, startColor, newColor;
+let grass;
 
 
 function preload() 
@@ -54,6 +57,8 @@ function setup()
 	amt = 0;
 
 	background(startColor);
+
+	grass = new yard();
 
 	setInputs();
 	startGrow();
@@ -74,11 +79,15 @@ function setup()
 	
 	writePoem(lines[0], lines[1], lines[2], lines[3], lines[4]);
 	
+	isLightMode = true
+
 	darkModeButton = createButton('Dark Mode');
 	darkModeButton.position(10 ,10);
 	darkModeButton.style('border', 'none');
 	darkModeButton.mousePressed(function() {
 		isDarkMode = true;
+		darkModeActivated = true;
+		isLightMode = false;
 		darkModeButton.style('visibility', 'hidden');
 		lightModeButton.style('visibility', 'initial');
 	});
@@ -90,14 +99,15 @@ function setup()
 	lightModeButton.style('visibility', 'hidden');
 	lightModeButton.mousePressed(function() {
 		isDarkMode = false;
+		isLightMode = true;
 		darkModeButton.style('visibility', 'initial');
 		lightModeButton.style('visibility', 'hidden');
 	})
 
-
 	for (let i = 0; i < numFireflies; i++){
 		flies.push(new firefly());
 	}
+
 }
 
 function setInputs()
@@ -148,47 +158,31 @@ function windowResized()
 
 function draw()
 {
-		
-	// if(isDarkMode == true ){
-	// 	darkMode();
-	// 	for(let i =0; i < flies.length; i++){
-	// 		flies[i].update();
-	// 	}
-	// }else{
-	// 	lightMode();
-	// }
 
-	lightMode();
+	if(isLightMode == true && darkModeActivated == true) {
+		background(fadeToWhite());
+	} else if(isLightMode == true) {
+		background('rgb(241, 249, 252)');
+	}
 
-	if(isDarkMode == true) {
+	if(isDarkMode == true ) {
+		background(fadeToBlack()); 
 		
-		background(lerpColor(startColor, newColor, amt));
-		amt+= 0.009;
-		if(amt >= 1) {
-			amt = 0.0;
-			startColor = newColor;
-			newColor = color(0, 0, 0);
-		}  
-			
 		for(let i =0; i < flies.length; i++){
 			flies[i].update();
-			
 		}
-
 	}
 	
+	//grass.update();
 
 	stroke('rgb(153, 102, 51)');
-
 	translate(width / 2, height);
 	scale(1, -1);
-		
+			
 	translate(0, 20);
-	
 	branch(1, randSeed);
-
 	noLoop();
-		
+
 }
 
 function mouseReleased() {
@@ -200,13 +194,27 @@ function mouseReleased() {
 	
 }
 
-function darkMode() {
-	background('rgb(0, 0, 20)');
+function fadeToBlack() {
+	amt+= 0.2;
+		if(amt >= 1) {
+			amt = 0.0;
+			startColor = newColor;
+			newColor = color(0, 0, 0);
+		} 
+
+	return lerpColor(startColor, newColor, amt);	
 }
 
-function lightMode() {
-			
-	this.background('rgb(241, 249, 252)');
+function fadeToWhite() {
+	amt+= 0.009;
+		if(amt >= 1) {
+			amt = 0.0;
+			startColor = newColor;
+			newColor = color(241, 249, 252);
+		} 
+
+	return lerpColor(startColor, newColor, amt);			
+	//this.background('rgb(241, 249, 252)');
 	
 }
 
@@ -419,4 +427,59 @@ function firefly() {
 		 
 		pop();
 	}
+
+}
+
+function yard() {
+	
+	this.grass = [];
+	this.roff = [];
+	this.rwave = [];
+	this.size = [];
+	this.seg = [];
+	this.index = 0;
+	this.population = 250;
+
+	for (let x = 0; x < width; x += width / this.population) {
+			this.index += 1;
+			this.grass.push(x);
+			this.roff.push((this.index * 0.065) + 0.015);
+			this.rwave.push(0);
+			this.size.push(random(15, 30));
+			this.seg.push(0.4);
+	}
+
+	this.update = function () {
+		for (let i = 0; i < this.index; i++) {
+			let len = this.size[i];
+			push();
+			translate(this.grass[i], height );
+			this.blade(len, i*3);
+			pop();
+			}
+	};
+
+	this.blade = function (len, ind) {
+		if (ind / 2 === int(ind / 2)) {
+			this.roff[ind] += 0.0025;
+			stroke(0, 255 - (len * 1.5), len * 1.5, 255);
+			rot = map(noise(this.roff[ind]), 0, 1, -QUARTER_PI * 0.75, QUARTER_PI * 0.75);
+		}
+
+		if (ind / 2 != int(ind / 2)) {
+			this.roff[ind] += 0.0025;
+			stroke(255 - (len * 2.5), len * 2.5, 10, 255);
+			rot = map(-sin(this.roff[ind]), -1, 1, -QUARTER_PI * 0.25, QUARTER_PI * 0.25);
+		}
+
+		strokeWeight(len * 2 * random(0.07, 0.11));
+		rotate(rot);
+		line(0, 0, 0, -len);
+		translate(0, -len);
+		if (len > 20) {
+			this.blade(len * this.seg[ind], ind);
+		}
+	}
+
+
 }
